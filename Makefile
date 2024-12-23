@@ -1,64 +1,35 @@
-# Simple Makefile for a Go project
+.PHONY: all test lint coverage build clean
 
-# Build the application
-all: build test
+# Variables
+VERSION := $(shell git describe --tags --always --dirty)
+BUILD_FLAGS := -ldflags="-X 'github.com/yourusername/module.Version=$(VERSION)'"
+
+all: lint test build
 
 build:
-	@echo "Building..."
-	
-	
-	@go build -o main cmd/api/main.go
+    go build $(BUILD_FLAGS) ./...
 
-# Run the application
-run:
-	@go run cmd/api/main.go
-# Create DB container
-docker-run:
-	@if docker compose up --build 2>/dev/null; then \
-		: ; \
-	else \
-		echo "Falling back to Docker Compose V1"; \
-		docker-compose up --build; \
-	fi
-
-# Shutdown DB container
-docker-down:
-	@if docker compose down 2>/dev/null; then \
-		: ; \
-	else \
-		echo "Falling back to Docker Compose V1"; \
-		docker-compose down; \
-	fi
-
-# Test the application
 test:
-	@echo "Testing..."
-	@go test ./... -v
-# Integrations Tests for the application
-itest:
-	@echo "Running integration tests..."
-	@go test ./internal/database -v
+    go test -v -race ./...
+    go test -v ./test/integration/...
 
-# Clean the binary
+test-short:
+    go test -v -short ./...
+
+lint:
+    golangci-lint run
+
+coverage:
+    go test -coverprofile=coverage.txt -covermode=atomic ./...
+    go tool cover -html=coverage.txt
+
 clean:
-	@echo "Cleaning..."
-	@rm -f main
+    go clean
+    rm -f coverage.txt
 
-# Live Reload
-watch:
-	@if command -v air > /dev/null; then \
-            air; \
-            echo "Watching...";\
-        else \
-            read -p "Go's 'air' is not installed on your machine. Do you want to install it? [Y/n] " choice; \
-            if [ "$$choice" != "n" ] && [ "$$choice" != "N" ]; then \
-                go install github.com/air-verse/air@latest; \
-                air; \
-                echo "Watching...";\
-            else \
-                echo "You chose not to install air. Exiting..."; \
-                exit 1; \
-            fi; \
-        fi
+# Run examples
+example-basic:
+    go run ./examples/basic
 
-.PHONY: all build run test clean watch docker-run docker-down itest
+example-advanced:
+    go run ./examples/advanced

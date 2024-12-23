@@ -1,34 +1,26 @@
-# Binaries for programs and plugins
+# Binaries
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
 
-# Test binary, built with "go test -c"
+# Test binary, built with go test -c
 *.test
 
-# Output of the go coverage tool, specifically when used with LiteIDE
+# Output of the go coverage tool
 *.out
+coverage.txt
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
-
-# Go workspace file
-go.work
-tmp/
+# Dependency directories
+vendor/
 
 # IDE specific files
-.vscode
-.idea
+.idea/
+.vscode/
+*.swp
+*.swo
 
-# .env file
-.env
-
-# Project build
-main
-*templ.go
-
-# OS X generated file
+# OS specific files
 .DS_Store
-
+.env
