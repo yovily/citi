@@ -1,0 +1,10 @@
+mode: set
+gitlab.com/yovily/customers/citi/pkg/auth/auth.go:27.39,31.2 1 1
+gitlab.com/yovily/customers/citi/pkg/auth/auth.go:34.63,36.34 1 1
+gitlab.com/yovily/customers/citi/pkg/auth/auth.go:36.34,38.3 1 1
+gitlab.com/yovily/customers/citi/pkg/auth/auth.go:40.2,46.47 5 1
+gitlab.com/yovily/customers/citi/pkg/auth/auth.go:50.117,55.19 2 1
+gitlab.com/yovily/customers/citi/pkg/auth/auth.go:55.19,60.3 1 1
+gitlab.com/yovily/customers/citi/pkg/auth/auth.go:63.2,63.27 1 1
+gitlab.com/yovily/customers/citi/pkg/auth/auth.go:63.27,67.3 3 1
+gitlab.com/yovily/customers/citi/pkg/auth/auth.go:70.2,71.12 2 1
