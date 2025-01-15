@@ -28,11 +28,14 @@ clean: ## Remove binary and test coverage files
 test: ## Run tests
 	$(GOTEST) $(PKG_LIST)
 
-auth-test:
+auth:
 	go test -v -cover ./pkg/auth/...
 
-resolver-test:
-	go test -v -cover ./pkg/resolver/...
+ldap:
+	go test -v -cover ./pkg/ldap/...
+
+resolver:
+	go test -v -cover ./internal/platform/...
 
 test-verbose: ## Run tests with verbose output
 	$(GOTEST) -v $(PKG_LIST)

@@ -1,18 +1,30 @@
+// pkg/ldap/doc.go
+
 // Package ldap provides LDAP (Lightweight Directory Access Protocol) client functionality
-// for authentication and user management.
+// for authentication and user directory services.
 //
-// It provides:
-//   - LDAP connection management
-//   - Authentication methods
+// The package provides:
+//   - LDAP server connection management
+//   - User authentication
 //   - Secure TLS connections
-//   - Error handling for LDAP operations
+//   - Platform-independent server resolution
 //
-// Example usage:
+// Basic usage:
 //
-//	client := ldap.NewClient("3269")
-//	conn, err := client.Connect("domain.com")
+//	config := ldap.Config{
+//	    Port:   "3269",
+//	    Domain: "example.com",
+//	}
+//	
+//	client := ldap.NewClient(config, logger)
+//	
+//	result, err := client.Authenticate("username", "password")
 //	if err != nil {
 //	    log.Fatal(err)
 //	}
-//	defer conn.Close()
-// package ldap
+//
+// Security Considerations:
+//   - All connections use LDAPS (LDAP over TLS)
+//   - Credentials are never logged
+//   - Connection timeouts are enforced
+package ldap
