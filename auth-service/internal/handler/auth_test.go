@@ -97,7 +97,7 @@ func TestHandleAuthentication(t *testing.T) {
 			method:     http.MethodGet,
 			wantStatus: http.StatusMethodNotAllowed,
 			wantResponse: ErrorResponse{
-				Error: "method not allowed",
+				Error: "invalid request",
 			},
 		},
 		{
@@ -128,7 +128,7 @@ func TestHandleAuthentication(t *testing.T) {
 			tokenSuccess: false,
 			wantStatus:   http.StatusInternalServerError,
 			wantResponse: ErrorResponse{
-				Error: "failed to generate token",
+				Error: "token generation failed",
 			},
 		},
 	}

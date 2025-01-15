@@ -1,7 +1,5 @@
 # NATS vs Kafka: A Modern Messaging System Comparison
 
-![Messaging Systems Architecture](about:blank)
-
 
 
 ## 🚀 Quick Overview

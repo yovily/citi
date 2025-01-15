@@ -54,6 +54,12 @@ func NewAuthHandler(ldapClient LDAPClient, authClient AuthClient, logger Logger)
 }
 
 func (h *AuthHandler) HandleAuthentication(w http.ResponseWriter, r *http.Request) {
+	// Check method first
+	if r.Method != http.MethodPost {
+		h.respondError(w, http.StatusMethodNotAllowed, "invalid request")
+		return
+	}
+
 	var request AuthRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		h.respondError(w, http.StatusBadRequest, "invalid request")
@@ -64,8 +70,8 @@ func (h *AuthHandler) HandleAuthentication(w http.ResponseWriter, r *http.Reques
 	username := fmt.Sprintf("%s@%s", request.UserID, request.Domain)
 
 	// Authenticate with LDAP
-	_, err := h.ldapClient.Authenticate(username, request.Password)
-	if err != nil {
+	result, err := h.ldapClient.Authenticate(username, request.Password)
+	if err != nil || !result.Success {
 		h.logger.Error("LDAP authentication failed", "error", err)
 		h.respondError(w, http.StatusUnauthorized, "authentication failed")
 		return
