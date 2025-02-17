@@ -21,17 +21,17 @@ type Config struct {
 	TokenExpiry  time.Duration
 }
 
-type AuthService struct {
+type AuthServiceImpl struct {
 	config Config
 }
 
-func NewAuthService(config Config) *AuthService {
-	return &AuthService{
+func NewAuthService(config Config) *AuthServiceImpl {
+	return &AuthServiceImpl{
 		config: config,
 	}
 }
 
-func (s *AuthService) Authenticate(username, password, domain string) (*AuthResult, error) {
+func (s *AuthServiceImpl) Authenticate(username, password, domain string) (*AuthResult, error) {
 	// Set default timeout for LDAP operations
 	ldap.DefaultTimeout = time.Second * 10
 
@@ -94,7 +94,7 @@ func (s *AuthService) Authenticate(username, password, domain string) (*AuthResu
 	}, nil
 }
 
-func (s *AuthService) GenerateToken(userID string) (string, error) {
+func (s *AuthServiceImpl) GenerateToken(userID string) (string, error) {
 	now := time.Now()
 	exp := now.Add(s.config.TokenExpiry)
 
@@ -116,9 +116,4 @@ func (s *AuthService) GenerateToken(userID string) (string, error) {
 	}
 
 	return signedToken, nil
-}
-
-type AuthService interface {
-	Authenticate(username, password, domain string) (*AuthResult, error)
-	GenerateToken(userID string) (string, error)
 }
