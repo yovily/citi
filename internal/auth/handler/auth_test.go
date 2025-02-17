@@ -1,4 +1,3 @@
-// internal/handler/auth_test.go
 package handler
 
 import (
@@ -10,38 +9,29 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/yovily/customers/citi/auth-service/pkg/ldap"
+	"github.com/yovily/citi/internal/auth/service"
 )
 
-// Add after the imports
-type AuthResult struct {
-	Success bool
+// Mock Auth Service
+type mockAuthService struct {
+	shouldAuthSucceed bool
+	token            string
+	shouldTokenErr   bool
 }
 
-// Mock LDAP Client
-type mockLDAPClient struct {
-	shouldSucceed bool
-	lastUsername  string
-	lastPassword  string
-}
-
-func (m *mockLDAPClient) Authenticate(username, password string) (*ldap.AuthResult, error) {
-	m.lastUsername = username
-	m.lastPassword = password
-	if m.shouldSucceed {
-		return &ldap.AuthResult{Success: true}, nil
+func (m *mockAuthService) Authenticate(username, password, domain string) (*service.AuthResult, error) {
+	if m.shouldAuthSucceed {
+		return &service.AuthResult{
+			Success: true,
+			UserID:  username,
+			Role:    "user",
+		}, nil
 	}
-	return &ldap.AuthResult{Success: false}, nil
+	return nil, fmt.Errorf("authentication failed")
 }
 
-// Mock Auth Client
-type mockAuthClient struct {
-	token     string
-	shouldErr bool
-}
-
-func (m *mockAuthClient) GenerateToken(userID string) (string, error) {
-	if m.shouldErr {
+func (m *mockAuthService) GenerateToken(userID string) (string, error) {
+	if m.shouldTokenErr {
 		return "", fmt.Errorf("token generation failed")
 	}
 	return m.token, nil
@@ -49,16 +39,11 @@ func (m *mockAuthClient) GenerateToken(userID string) (string, error) {
 
 // Mock Logger
 type mockLogger struct {
-	infoMsgs  []string
 	errorMsgs []string
 }
 
-func (m *mockLogger) Info(msg string, keyvals ...interface{}) {
-	m.infoMsgs = append(m.infoMsgs, msg)
-}
-
-func (m *mockLogger) Error(msg string, keyvals ...interface{}) {
-	m.errorMsgs = append(m.errorMsgs, msg)
+func (m *mockLogger) Error(msg string, args ...interface{}) {
+	m.errorMsgs = append(m.errorMsgs, fmt.Sprintf(msg, args...))
 }
 
 func TestHandleAuthentication(t *testing.T) {
@@ -66,7 +51,7 @@ func TestHandleAuthentication(t *testing.T) {
 		name         string
 		method       string
 		request      *AuthRequest
-		ldapSuccess  bool
+		authSuccess  bool
 		tokenSuccess bool
 		mockToken    string
 		wantStatus   int
@@ -81,7 +66,7 @@ func TestHandleAuthentication(t *testing.T) {
 				Domain:   "example.com",
 				Role:     "user",
 			},
-			ldapSuccess:  true,
+			authSuccess:  true,
 			tokenSuccess: true,
 			mockToken:    "valid.jwt.token",
 			wantStatus:   http.StatusOK,
@@ -101,7 +86,7 @@ func TestHandleAuthentication(t *testing.T) {
 			},
 		},
 		{
-			name:   "ldap authentication failure",
+			name:   "authentication failure",
 			method: http.MethodPost,
 			request: &AuthRequest{
 				UserID:   "testuser",
@@ -109,7 +94,7 @@ func TestHandleAuthentication(t *testing.T) {
 				Domain:   "example.com",
 				Role:     "user",
 			},
-			ldapSuccess: false,
+			authSuccess: false,
 			wantStatus:  http.StatusUnauthorized,
 			wantResponse: ErrorResponse{
 				Error: "authentication failed",
@@ -124,7 +109,7 @@ func TestHandleAuthentication(t *testing.T) {
 				Domain:   "example.com",
 				Role:     "user",
 			},
-			ldapSuccess:  true,
+			authSuccess:  true,
 			tokenSuccess: false,
 			wantStatus:   http.StatusInternalServerError,
 			wantResponse: ErrorResponse{
@@ -136,15 +121,15 @@ func TestHandleAuthentication(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Setup mocks
-			ldapClient := &mockLDAPClient{shouldSucceed: tt.ldapSuccess}
-			authClient := &mockAuthClient{
-				token:     tt.mockToken,
-				shouldErr: !tt.tokenSuccess,
+			authService := &mockAuthService{
+				shouldAuthSucceed: tt.authSuccess,
+				token:            tt.mockToken,
+				shouldTokenErr:   !tt.tokenSuccess,
 			}
 			logger := &mockLogger{}
 
 			// Create handler
-			handler := NewAuthHandler(ldapClient, authClient, logger)
+			handler := NewAuthHandler(authService, logger)
 
 			// Create request
 			var body []byte
@@ -184,12 +169,9 @@ func TestHandleAuthentication(t *testing.T) {
 				}
 			}
 
-			// Additional checks for successful auth
-			if tt.ldapSuccess && tt.request != nil {
-				expectedUsername := tt.request.UserID + "@" + tt.request.Domain
-				if ldapClient.lastUsername != expectedUsername {
-					t.Errorf("LDAP username = %v, want %v", ldapClient.lastUsername, expectedUsername)
-				}
+			// Check error logging for failure cases
+			if !tt.authSuccess && len(logger.errorMsgs) == 0 {
+				t.Error("Expected error to be logged for authentication failure")
 			}
 		})
 	}

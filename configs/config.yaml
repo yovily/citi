@@ -1,0 +1,17 @@
+gateway:
+  port: 8080
+  nats:
+    url: nats://localhost:4222
+    auth_subject: auth.service
+    request_timeout: 5s
+
+auth:
+  nats:
+    url: nats://localhost:4222
+    auth_subject: auth.service
+  ldap:
+    server: localhost
+    port: 389
+  jwt:
+    secret: your-secret-key
+    expiry: 24h

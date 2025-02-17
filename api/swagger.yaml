@@ -1,0 +1,109 @@
+openapi: 3.0.0
+info:
+  title: Authentication API
+  description: API for authentication and authorization
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /auth:
+    post:
+      summary: Authenticate user
+      description: Authenticates a user and returns a JWT token
+      operationId: authenticateUser
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+            example:
+              UserID: "test_user"
+              Password: "test_password"
+              Domain: "test_domain"
+              Role: "user"
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                UserID: "test_user"
+                IsAuthenticated: true
+                Role: "user"
+                Token: "eyJhbGciOiJIUzI1NiIs..."
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "invalid request"
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "authentication failed"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "token generation failed"
+
+components:
+  schemas:
+    AuthRequest:
+      type: object
+      required:
+        - UserID
+        - Password
+        - Domain
+        - Role
+      properties:
+        UserID:
+          type: string
+          description: User identifier
+        Password:
+          type: string
+          description: User password
+        Domain:
+          type: string
+          description: Authentication domain
+        Role:
+          type: string
+          description: User role
+    
+    AuthResponse:
+      type: object
+      properties:
+        UserID:
+          type: string
+          description: User identifier
+        IsAuthenticated:
+          type: boolean
+          description: Authentication status
+        Role:
+          type: string
+          description: User role
+        Token:
+          type: string
+          description: JWT token for authenticated user
+    
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message

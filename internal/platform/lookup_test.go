@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/yovily/customers/citi/auth-service/pkg/resolver"
+	"github.com/yovily/citi/internal/platform/resolver"
 )
 
 // Mock command executor

@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/yovily/customers/citi/auth-service/pkg/resolver"
+	"github.com/yovily/citi/internal/platform/resolver"
 )
 
 // Add command interface
