@@ -2,6 +2,8 @@
 
 syntax = "proto3";
 
+package product;
+
 option go_package = "github.com/citi/guardian/protogen/golang/product";
 
 enum ProductType {
@@ -12,6 +14,8 @@ enum ProductType {
 
 message Product {
     uint64 product_id = 1 [ json_name = "product_id" ];
-    string product_name = 2 [ json_name = "product_name" ];
-    ProductType product_type = 5 [ json_name = "product_type" ];
+    string name = 2 [ json_name = "name" ];
+    string description = 3 [ json_name = "description" ];
+    double price = 4 [ json_name = "price" ];
+    uint32 quantity = 5 [ json_name = "quantity" ];
 }
