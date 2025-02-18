@@ -2,10 +2,11 @@
 
 syntax = "proto3";
 
-option go_package = "github.com/koyeb/example-go-grpc-gateway/protogen/golang/orders";
+option go_package = "github.com/citi/guardian/protogen/golang/orders";
 
 import "product/product.proto";
-import "google/api/date.proto";
+import "google/type/date.proto";
+import "google/api/annotations.proto";
 
 message Order {
     uint64 order_id = 1 [ json_name = "order_id" ];
@@ -13,4 +14,19 @@ message Order {
     bool is_active = 3 [ json_name = "is_active" ];
     repeated Product products = 4;
     google.type.Date order_date = 5 [ json_name = "order_date" ];
+}
+
+message Empty {}
+
+message PayloadWithSingleOrder {
+  Order order = 1;
+}
+
+service Orders {
+  rpc AddOrder(PayloadWithSingleOrder) returns (Empty) {
+    option (google.api.http) = {
+      post: "/v0/orders",
+      body: "*"
+    };
+  }
 }
